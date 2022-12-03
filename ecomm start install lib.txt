@@ -1,0 +1,26 @@
+npm init
+
+npm i dotenv
+
+npm i express 
+
+npm i sequelize mysql2
+
+npm i body-parser
+
+
+create database ecomm_db
+
+UI => route => controller => model => DB
+get put post del
+
+npm i bcryptjs
+npm i jsonwebtoken
+npm i jest --save-dev
+
+http://localhost:8084/categories/
+http://localhost:8084/categories
+
+
+
+
