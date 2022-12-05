@@ -1,6 +1,4 @@
 const db = require("./../model");
-const Product = db.product;
-const Cart = db.cart;
 
 let createCart = async(req, res, next) => {
     const cart = { cost: 0 };
@@ -18,9 +16,9 @@ let createCart = async(req, res, next) => {
 
 let updateCart = async(req, res, next) => {
     const cartId = req.params.cartId;
-    let cartTOUpdate = await Cart.findByPk(cartId);
+    let cartTOUpdate = await db.cart.findByPk(cartId);
     if (cartTOUpdate) {
-        let productsTOAdd = await Product.findAll({
+        let productsTOAdd = await db.product.findAll({
             where: {
                 id: req.body.productIds,
             },
@@ -50,7 +48,7 @@ let updateCart = async(req, res, next) => {
 };
 
 let getCart = async(req, res, next) => {
-    let cart = await Cart.findByPk(req.params.cartId);
+    let cart = await db.cart.findByPk(req.params.cartId);
     let totalCost = 0;
     let productsSelected = [];
     let products = await cart.getProducts();

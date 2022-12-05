@@ -1,60 +1,54 @@
-let categories = require("./../model/category");
-let sequelizeInstance = require("./../config/db.config");
-let express = require("express");
-let bodyParser = require("body-parser");
-
-let expressApp = express();
-expressApp.use(bodyParser);
+const db = require("./../model");
+const categories = db.categories;
 
 let getAllCategories = async(req, res, next) => {
-    let cats = await categories.findAll();
+    let categories = await db.categories.findAll();
     res.writeHead(200, { "Contend-type": "application/json" });
-    res.write(JSON.stringify(cats));
+    res.write(JSON.stringify(categories));
     res.end();
 };
 
 let getCategoryById = async(req, res, next) => {
     let id = req.params.CategoryId;
-    let cats = await categories.findAll({
+    let categories = await db.categories.findAll({
         where: {
             id: id,
         },
     });
-    req.status(200).json(cats);
+    req.status(200).json(categories);
     res.end();
 };
 
 let addNewCategory = async(req, res, next) => {
     try {
         let categoryTOAdd = req.body;
-        await categories.create(categoryTOAdd);
+        await db.categories.create(categoryTOAdd);
         res.status(201).send("new category added");
         res.end();
     } catch (err) {
         next(err);
-        //res.status(400).send("something went wrong");
-        // } finally {
-        //     res.end();
-        // }
     }
 };
 
 let deleteCategoryById = async(req, res, next) => {
     let id = req.params.categoryId;
+    let category = await db.category.findByPk(id);
+    try {
+        if (!category) {
+            throw new Error("Category not found");
+        }
 
-    let category = await categories.findByPk(id);
-
-    if (category) {
-        await categories.destroy({
+        await db.category.destroy({
             where: {
-                id: id,
+                categoryId: id,
             },
         });
+
         res.status(200).send("category deleted");
-    } else {
-        res.status(404).send("category not found");
+        res.end();
+    } catch (err) {
+        next(err);
     }
-    res.end();
 };
 
 let updateCategoryById = async(req, res, next) => {
@@ -66,14 +60,15 @@ let updateCategoryById = async(req, res, next) => {
     let id = req.params.categoryId;
     let categoryToUpdate = {
         name: req.body.name,
+        price: req.body.price,
     };
-    await categories.update(categoryToUpdate, {
+    await db.category.update(categoryToUpdate, {
         where: {
-            id: id,
+            categoryId: id,
         },
     });
 
-    let updateCategory = await categories.findByPk(id);
+    let updateCategory = await db.category.findByPk(id);
     res.status(200).send(updateCategory);
 };
 

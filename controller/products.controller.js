@@ -1,10 +1,7 @@
-let dbconnection = require("./../config/db.config");
-let Products = require("./../model/product");
-const { Sequelize } = require("sequelize");
-const e = require("express");
+const db = require("../model");
 
 let insertProducts = async(req, res, next) => {
-    await Products.bulkCreate([{
+    await db.product.bulkCreate([{
             name: "Samsung Galaxy Note",
             categoryId: 2,
             price: 18000,
@@ -41,6 +38,18 @@ let insertProducts = async(req, res, next) => {
     });
 };
 
+let createProduct = async(req, res, next) => {
+    let productToAdd = req.body;
+    try {
+        await db.product.create(productToAdd);
+        res.status(201).json(productToAdd);
+    } catch (err) {
+        res.status(500).json({
+            message: "Some internal error occured",
+        });
+    }
+};
+
 let getAllProducts = async(req, res, next) => {
     let categoryId = req.query.categoryId;
     let minPrice = req.query.minPrice;
@@ -48,19 +57,19 @@ let getAllProducts = async(req, res, next) => {
     let prod = [];
 
     if (Object.keys(req.query).length == 0) {
-        prod = await Products.findAll();
+        prod = await db.product.findAll();
     } else {
         if (categoryId && !(minPrice || maxPrice)) {
             prod = await filterByCategory(categoryId);
         } else if (!categoryId && minPrice && maxPrice) {
             prod = await filterByPriceRange(minPrice, maxPrice);
         } else {
-            prod = await Products.findAll({
+            prod = await db.product.findAll({
                 where: {
                     categoryId: categoryId,
                     price: {
-                        [Sequelize.Op.gte]: minPrice,
-                        [Sequelize.Op.lte]: maxPrice,
+                        [db.sequelize.Op.gte]: minPrice,
+                        [db.sequelize.Op.lte]: maxPrice,
                     },
                 },
             });
@@ -72,7 +81,7 @@ let getAllProducts = async(req, res, next) => {
 };
 
 let filterByCategory = async(categoryId) => {
-    let filteredProducts = await Products.findAll({
+    let filteredProducts = await db.product.findAll({
         where: {
             categoryId: categoryId,
         },
@@ -82,11 +91,11 @@ let filterByCategory = async(categoryId) => {
 };
 
 let filterByPriceRange = async(minPrice, maxPrice) => {
-    let filteredProducts = await Products.findAll({
+    let filteredProducts = await db.product.findAll({
         where: {
             price: {
-                [Sequelize.Op.gte]: minPrice,
-                [Sequelize.Op.lte]: maxPrice,
+                [db.sequelize.Op.gte]: minPrice,
+                [db.sequelize.Op.lte]: maxPrice,
             },
         },
     });
@@ -99,7 +108,7 @@ let getProductById = async(req, res, next) => {
     if (!id) {
         res.status(400).send("ID is not passed");
     }
-    let prod = await Products.findAll({
+    let prod = await db.product.findOne({
         where: {
             id: id,
         },
@@ -111,7 +120,7 @@ let getProductById = async(req, res, next) => {
 
 let addNewProduct = async(req, res, next) => {
     let productTOAdd = req.body.name;
-    await Products.create({
+    await db.product.create({
         name: productTOAdd,
     });
     res.status(201).send("new Product added");
@@ -136,10 +145,10 @@ let addNewProduct = async(req, res, next) => {
 let deleteProductById = async(req, res, next) => {
     let id = req.params.productId;
 
-    let ProductToDelete = await Products.findByPk(id);
+    let ProductToDelete = await db.product.findByPk(id);
 
     if (ProductToDelete) {
-        await Products.destroy({
+        await db.product.destroy({
             where: {
                 id: id,
             },
@@ -161,17 +170,18 @@ let updateProductById = async(req, res, next) => {
     let ProductToUpdate = {
         name: req.body.name,
     };
-    await Products.update(ProductToUpdate, {
+    await db.product.update(ProductToUpdate, {
         where: {
             id: id,
         },
     });
 
-    let updateProduct = await Products.findByPk(id);
+    let updateProduct = await db.product.findByPk(id);
     res.status(200).send(updateProduct);
 };
 
 module.exports = {
+    createProduct,
     getAllProducts,
     getProductById,
     addNewProduct,
