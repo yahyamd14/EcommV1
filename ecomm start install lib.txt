@@ -18,8 +18,19 @@ npm i bcryptjs
 npm i jsonwebtoken
 npm i jest --save-dev
 
+npm install -D cross-env jest
+
 http://localhost:8084/categories/
 http://localhost:8084/categories
+
+
+1030582  
+TPL Project
+Senior AR
+Chennai 
+
+
+ 
 
 
 

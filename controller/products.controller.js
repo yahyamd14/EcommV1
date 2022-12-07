@@ -38,7 +38,7 @@ let insertProducts = async(req, res, next) => {
     });
 };
 
-let createProduct = async(req, res, next) => {
+let create = async(req, res, next) => {
     let productToAdd = req.body;
     try {
         await db.product.create(productToAdd);
@@ -181,7 +181,7 @@ let updateProductById = async(req, res, next) => {
 };
 
 module.exports = {
-    createProduct,
+    create,
     getAllProducts,
     getProductById,
     addNewProduct,
